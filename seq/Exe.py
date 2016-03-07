@@ -8,14 +8,16 @@ import functools, numbers, six
 
 from . Import import import_function
 
-def _maker(name, *args, **kwds):
-    return functools.partial(import_function(name), *args, **kwds)
-
-
-def exe(item, maker=_maker):
+def exe(item, maker=None):
     """Returns either None, a callable, or a list looking like
     [ time, ex1, ex2, ...] where each `ex` is an executable
     and time is an optional delay time."""
+
+    if not item:
+        return None
+
+    def _maker(name, *args, **kwds):
+        return functools.partial(import_function(name), *args, **kwds)
 
     def is_list(x):
         return isinstance(item, (list, tuple))
@@ -32,13 +34,11 @@ def exe(item, maker=_maker):
         else:
             return isinstance(x, numbers.Number)
 
-    if not item:
-        return None
-
+    maker = maker or _maker
     if is_string(item):
-        return _maker(item)
+        return maker(item)
 
-    parts = list(item):
+    parts = list(item)
 
     # Pop off a time, if any.
     result = [parts.pop(0)] if is_time(parts[0]) else []
@@ -60,6 +60,6 @@ def exe(item, maker=_maker):
             kwds.update(p)
         else:
             args.append(p)
-    return _maker(name, *args, **kwds)
+    return maker(name, *args, **kwds)
 
     # Must be a dict where each key is a time.
