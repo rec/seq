@@ -8,7 +8,7 @@ def import_function(classpath):
     parts = classpath.split('.')
     function = parts.pop()
 
-    return getattr(importlib.import_module('.'.join(parts)), function)
+    return getattr(import_module('.'.join(parts)), function)
 
 def import_symbol(classpath):
     try:
